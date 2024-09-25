@@ -1,0 +1,10 @@
+.gitignore
+.lambdaignore
+function.json
+*.tf
+.terraform*
+config.tf.example
+*_dummy.zip
+*.sh
+Taskfile.yaml
+aqua.yaml

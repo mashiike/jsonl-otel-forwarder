@@ -92,6 +92,8 @@ func (o *Options) SetFlags(fs *flag.FlagSet) {
 		names := []string{
 			strings.ToUpper(EnvPrefix + strings.ReplaceAll(f.Name, "-", "_")),
 			strings.ToLower(EnvPrefix + strings.ReplaceAll(f.Name, "-", "_")),
+			strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_")),
+			strings.ToLower(strings.ReplaceAll(f.Name, "-", "_")),
 		}
 		for _, name := range names {
 			if s, ok := os.LookupEnv(name); ok {
@@ -101,7 +103,7 @@ func (o *Options) SetFlags(fs *flag.FlagSet) {
 		}
 	})
 	for _, env := range os.Environ() {
-		if !strings.HasPrefix(env, EnvPrefix+"HEADER_") {
+		if !strings.HasPrefix(env, EnvPrefix+"HEADER_") && !strings.HasPrefix(env, "HEADER_") {
 			continue
 		}
 		parts := strings.SplitN(env, "=", 2)

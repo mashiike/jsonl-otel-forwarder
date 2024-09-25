@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  go:test:
+    desc: run tests
+    cmds:
+      - go test -v -race ./...
+
+includes:
+  examples:
+    taskfile: ./_examples/Tasks.yaml
+    dir: ./_examples/

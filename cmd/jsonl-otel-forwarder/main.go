@@ -28,13 +28,10 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	logLevel := "info"
+	flag.StringVar(&logLevel, "log-level", logLevel, "log level ($FORWARDER_LOG_LEVEL)")
 	opts := jsonlotelforwarder.DefaultOptions()
 	opts.SetFlags(flag.CommandLine)
-	var logLevel = "info"
-	if envLogLevel := os.Getenv(jsonlotelforwarder.EnvPrefix + "LOG_LEVEL"); envLogLevel != "" {
-		logLevel = envLogLevel
-	}
-	flag.StringVar(&logLevel, "log-level", logLevel, "log level ($FORWARDER_LOG_LEVEL)")
 	flag.Parse()
 
 	var minLevel slog.Level
@@ -49,6 +46,7 @@ func main() {
 	if logLevelErr != nil {
 		slog.Warn("invalid log level, fallback to info level", "error", logLevelErr, "log-level", logLevel)
 	}
+	slog.Info("start forwarder", "version", jsonlotelforwarder.Version, "log-level", minLevel)
 
 	forwarder, err := jsonlotelforwarder.New(opts)
 	if err != nil {
