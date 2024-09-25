@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 	if paths := os.Getenv("SSMWRAP_NAMES"); paths != "" {
