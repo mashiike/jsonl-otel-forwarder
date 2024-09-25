@@ -11,9 +11,7 @@ linters:
   disable-all: true
   enable:
     - gocyclo
-    - staticcheck
     - govet
-    - errcheck
   presets:
     - bugs
     - unused
