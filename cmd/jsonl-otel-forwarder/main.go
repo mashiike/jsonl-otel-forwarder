@@ -3,14 +3,32 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 
+	"github.com/handlename/ssmwrap/v2"
 	jsonlotelforwarder "github.com/mashiike/jsonl-otel-forwarder"
 )
 
 func main() {
+
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+	if paths := os.Getenv("SSMWRAP_NAMES"); paths != "" {
+		rules := make([]ssmwrap.ExportRule, 0)
+		for _, path := range strings.Split(paths, ",") {
+			rules = append(rules, ssmwrap.ExportRule{
+				Path: path,
+			})
+		}
+		if err := ssmwrap.Export(ctx, rules, ssmwrap.ExportOptions{}); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to export parameters: %v", err)
+			os.Exit(1)
+		}
+	}
 	opts := jsonlotelforwarder.DefaultOptions()
 	opts.SetFlags(flag.CommandLine)
 	var (
@@ -40,7 +58,5 @@ func main() {
 		slog.Error("failed to create forwarder", "error", err)
 		os.Exit(1)
 	}
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
 	forwarder.Run(ctx)
 }
