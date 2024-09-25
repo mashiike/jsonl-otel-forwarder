@@ -31,9 +31,7 @@ func main() {
 	}
 	opts := jsonlotelforwarder.DefaultOptions()
 	opts.SetFlags(flag.CommandLine)
-	var (
-		logLevel string = "info"
-	)
+	var logLevel = "info"
 	if envLogLevel := os.Getenv(jsonlotelforwarder.EnvPrefix + "LOG_LEVEL"); envLogLevel != "" {
 		logLevel = envLogLevel
 	}
