@@ -68,21 +68,21 @@ func (f *Forwarder) exportResult(ctx context.Context, client *otlp.Client, resul
 		if err := client.UploadTraces(ctx, result.Traces.ResourceSpans); err != nil {
 			return fmt.Errorf("upload traces: %w", err)
 		}
-		slog.InfoContext(ctx, "upload traces", "resource_spans", len(result.Traces.ResourceSpans))
+		slog.InfoContext(ctx, "upload traces", "resource_spans", len(result.Traces.GetResourceSpans()))
 		return nil
 	}
 	if result.Metrics != nil && f.options.EnableMetrics() {
 		if err := client.UploadMetrics(ctx, result.Metrics.ResourceMetrics); err != nil {
 			return fmt.Errorf("upload metrics: %w", err)
 		}
-		slog.InfoContext(ctx, "upload metrics", "resource_metrics", len(result.Metrics.ResourceMetrics))
+		slog.InfoContext(ctx, "upload metrics", "resource_metrics", len(result.Metrics.GetResourceMetrics()))
 		return nil
 	}
 	if result.Logs != nil && f.options.EnableLogs() {
 		if err := client.UploadLogs(ctx, result.Logs.ResourceLogs); err != nil {
 			return fmt.Errorf("upload logs: %w", err)
 		}
-		slog.InfoContext(ctx, "upload logs", "resource_logs", len(result.Logs.ResourceLogs))
+		slog.InfoContext(ctx, "upload logs", "resource_logs", len(result.Logs.GetResourceLogs()))
 		return nil
 	}
 	return nil
