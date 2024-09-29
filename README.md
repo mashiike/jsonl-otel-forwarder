@@ -21,9 +21,10 @@ go get github.com/mashiike/jsonl-otel-forwarder
 To use jsonl-otel-forwarder, run the following command:
 
 ```sh
-$ cat trace.json | jsonl-otel-forwarder --export-endpoint-url http://localhost:4317
+$ cat trace.json | jsonl-otel-forwarder --otlp-endpoint http://localhost:4317
 ```
 
+trace.json:
 ```json
 {
   "resourceSpans": [
@@ -131,6 +132,7 @@ options priority is as follows:
 1. command line options
 2. `FORWARDER_` prefixed environment variables
 3. `OTEL_EXPORTER_` prefixed environment variables
+
 ### Usage on AWS Lambda with AWS CloudWatch Logs Subscription Filter
 
 see [examples](./_examples/) directory.
