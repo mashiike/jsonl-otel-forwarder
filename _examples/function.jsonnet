@@ -7,7 +7,7 @@ local caller = std.native('caller_identity')();
     Variables: {
       FORWARDER_LOG_LEVEL: 'debug',
       FORWARDER_OTLP_ENDPOINT: 'https://otlp.mackerelio.com:4317/',
-      FORWARDER_OTLP_PROTOCL: 'grpc',
+      FORWARDER_OTLP_PROTOCOL: 'grpc',
       FORWARDER_OTLP_TRACES_PROTOCOL: 'http/protobuf',
       FORWARDER_SIGNALS: 'traces,metrics',
       SSMWRAP_NAMES: '/jsonl-otel-forwarder/*',
