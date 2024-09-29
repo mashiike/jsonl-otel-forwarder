@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/handlename/ssmwrap/v2"
+	"github.com/ken39arg/go-flagx"
 	jsonlotelforwarder "github.com/mashiike/jsonl-otel-forwarder"
 )
 
@@ -32,6 +33,16 @@ func main() {
 	flag.StringVar(&logLevel, "log-level", logLevel, "log level ($FORWARDER_LOG_LEVEL)")
 	opts := jsonlotelforwarder.DefaultOptions()
 	opts.SetFlags(flag.CommandLine)
+	flag.VisitAll(flagx.EnvToFlagWithPrefix("FORWARDER_"))
+	flag.CommandLine.Usage = func() {
+		fmt.Fprintln(flag.CommandLine.Output(), "Usage: jsonl-otel-forwarder [options]")
+		fmt.Fprintln(flag.CommandLine.Output(), "")
+		fmt.Fprintln(flag.CommandLine.Output(), "\t Forward JSON Lines OTLP logs to OpenTelemetry Collector/Server")
+		fmt.Fprintln(flag.CommandLine.Output(), "")
+		fmt.Fprintln(flag.CommandLine.Output(), "Options:")
+		fmt.Fprintln(flag.CommandLine.Output(), "")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	var minLevel slog.Level

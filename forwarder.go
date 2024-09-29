@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/fujiwara/lamblocal"
+	"github.com/mashiike/go-otlp-helper/otlp"
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
 	tracepb "go.opentelemetry.io/proto/otlp/trace/v1"
@@ -38,9 +39,14 @@ func (f *Forwarder) Invoke(ctx context.Context, payload json.RawMessage) (json.R
 }
 
 func (f *Forwarder) invokeAsExportTelemetry(ctx context.Context, results []*PaseResult) (json.RawMessage, error) {
-	client := NewClient(f.options)
+	opts := f.options.clientOptions
+	opts = append(opts, otlp.WithLogger(slog.Default()))
+	client, err := otlp.NewClient("http://localhost:4317", opts...)
+	if err != nil {
+		return nil, fmt.Errorf("create otlp client: %w", err)
+	}
 	if err := client.Start(ctx); err != nil {
-		return nil, fmt.Errorf("start trace client: %w", err)
+		return nil, fmt.Errorf("start otlp client: %w", err)
 	}
 	for _, result := range results {
 		if result.Skip() {
@@ -57,26 +63,29 @@ func (f *Forwarder) invokeAsExportTelemetry(ctx context.Context, results []*Pase
 	return json.RawMessage(`{"success":true}`), nil
 }
 
-func (f *Forwarder) exportResult(ctx context.Context, client *Client, result *PaseResult) error {
+func (f *Forwarder) exportResult(ctx context.Context, client *otlp.Client, result *PaseResult) error {
 	if result.Traces != nil && f.options.EnableTraces() {
-		if err := client.UploadTraces(ctx, result.Traces.ResourceSpans); err != nil {
+		recourceSpans := result.Traces.GetResourceSpans()
+		if err := client.UploadTraces(ctx, recourceSpans); err != nil {
 			return fmt.Errorf("upload traces: %w", err)
 		}
-		slog.InfoContext(ctx, "upload traces", "resource_spans", len(result.Traces.ResourceSpans))
+		slog.InfoContext(ctx, "upload traces", "resource_spans", len(recourceSpans))
 		return nil
 	}
 	if result.Metrics != nil && f.options.EnableMetrics() {
-		if err := client.UploadMetrics(ctx, result.Metrics.ResourceMetrics); err != nil {
+		resourceMetrics := result.Metrics.GetResourceMetrics()
+		if err := client.UploadMetrics(ctx, resourceMetrics); err != nil {
 			return fmt.Errorf("upload metrics: %w", err)
 		}
-		slog.InfoContext(ctx, "upload metrics", "resource_metrics", len(result.Metrics.ResourceMetrics))
+		slog.InfoContext(ctx, "upload metrics", "resource_metrics", len(resourceMetrics))
 		return nil
 	}
 	if result.Logs != nil && f.options.EnableLogs() {
-		if err := client.UploadLogs(ctx, result.Logs.ResourceLogs); err != nil {
+		resourceLogs := result.Logs.GetResourceLogs()
+		if err := client.UploadLogs(ctx, resourceLogs); err != nil {
 			return fmt.Errorf("upload logs: %w", err)
 		}
-		slog.InfoContext(ctx, "upload logs", "resource_logs", len(result.Logs.ResourceLogs))
+		slog.InfoContext(ctx, "upload logs", "resource_logs", len(resourceLogs))
 		return nil
 	}
 	return nil

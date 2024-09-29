@@ -90,10 +90,10 @@ resource "aws_lambda_alias" "forwarder" {
 }
 
 resource "aws_ssm_parameter" "header_mackerel_apikey" {
-  name        = "/jsonl-otel-forwarder/FORWARDER_HEADER_MACKEREL_APIKEY"
+  name        = "/jsonl-otel-forwarder/FORWARDER_OTLP_HEADERS"
   description = "Mackerel API Key for Forwarder"
   type        = "SecureString"
-  value       = local.header_mackerel_apikey
+  value       = "Mackerel-Api-Key=" + local.header_mackerel_apikey
 }
 
 resource "aws_cloudwatch_log_group" "otel_logs" {

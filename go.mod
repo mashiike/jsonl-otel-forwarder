@@ -7,10 +7,10 @@ toolchain go1.22.7
 require (
 	github.com/fujiwara/lamblocal v0.0.4
 	github.com/handlename/ssmwrap/v2 v2.2.0
-	github.com/mashiike/go-otel-server v0.1.1
+	github.com/ken39arg/go-flagx v0.0.0-20220608183922-7cf7c6c0093c
+	github.com/mashiike/go-otlp-helper v0.2.2
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/proto/otlp v1.3.1
-	google.golang.org/grpc v1.67.0
 	google.golang.org/protobuf v1.34.2
 )
 
@@ -60,5 +60,6 @@ require (
 	golang.org/x/text v0.18.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
+	google.golang.org/grpc v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
