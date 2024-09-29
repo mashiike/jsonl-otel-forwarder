@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	otlpmux "github.com/mashiike/go-otel-server/otlp"
-	"github.com/mashiike/go-otel-server/otlp/otlptest"
+	otlpmux "github.com/mashiike/go-otlp-helper/otlp"
+	"github.com/mashiike/go-otlp-helper/otlp/otlptest"
 	jsonlotelforwarder "github.com/mashiike/jsonl-otel-forwarder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,10 +31,9 @@ func TestForwarder__Trace(t *testing.T) {
 	require.NoError(t, err)
 
 	opts := jsonlotelforwarder.DefaultOptions()
-	opts.EndpointURL = server.URL
-	opts.Headers = jsonlotelforwarder.NewHeaderSlice(map[string]string{
-		"Api-Key": "dummy",
-	})
+	t.Setenv("FORWARDER_OTLP_ENDPOINT", server.URL)
+	t.Setenv("FORWARDER_OTLP_PROTOCOL", "grpc")
+	t.Setenv("FORWARDER_OTLP_HEADERS", "Api-Key=dummy")
 
 	forwarder, err := jsonlotelforwarder.New(opts)
 	require.NoError(t, err)
@@ -71,10 +70,9 @@ func TestForwarder__Metrics(t *testing.T) {
 	require.NoError(t, err)
 
 	opts := jsonlotelforwarder.DefaultOptions()
-	opts.EndpointURL = server.URL
-	opts.Headers = jsonlotelforwarder.NewHeaderSlice(map[string]string{
-		"Api-Key": "dummy",
-	})
+	t.Setenv("FORWARDER_OTLP_ENDPOINT", server.URL)
+	t.Setenv("FORWARDER_OTLP_PROTOCOL", "grpc")
+	t.Setenv("FORWARDER_OTLP_HEADERS", "Api-Key=dummy")
 
 	forwarder, err := jsonlotelforwarder.New(opts)
 	require.NoError(t, err)
@@ -111,10 +109,9 @@ func TestForwarder__Logs(t *testing.T) {
 	require.NoError(t, err)
 
 	opts := jsonlotelforwarder.DefaultOptions()
-	opts.EndpointURL = server.URL
-	opts.Headers = jsonlotelforwarder.NewHeaderSlice(map[string]string{
-		"Api-Key": "dummy",
-	})
+	t.Setenv("FORWARDER_OTLP_ENDPOINT", server.URL)
+	t.Setenv("FORWARDER_OTLP_PROTOCOL", "grpc")
+	t.Setenv("FORWARDER_OTLP_HEADERS", "Api-Key=dummy")
 
 	forwarder, err := jsonlotelforwarder.New(opts)
 	require.NoError(t, err)
@@ -156,13 +153,10 @@ func TestForworder__SubscriptionFilter__Trace(t *testing.T) {
 		trace,
 		[]byte("test log event 3"),
 	})
-
+	t.Setenv("FORWARDER_OTLP_ENDPOINT", server.URL)
+	t.Setenv("FORWARDER_OTLP_PROTOCOL", "grpc")
+	t.Setenv("FORWARDER_OTLP_HEADERS", "Api-Key=dummy")
 	opts := jsonlotelforwarder.DefaultOptions()
-	opts.EndpointURL = server.URL
-	opts.Headers = jsonlotelforwarder.NewHeaderSlice(map[string]string{
-		"Api-Key": "dummy",
-	})
-
 	forwarder, err := jsonlotelforwarder.New(opts)
 	require.NoError(t, err)
 	ctx := context.Background()
