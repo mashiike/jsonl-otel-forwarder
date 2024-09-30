@@ -8,6 +8,8 @@ issues:
         - gocyclo
 
 linters:
+  disable:
+    - testify
   disable-all: true
   enable:
     - gocyclo
