@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.7
 
 require (
-	github.com/fujiwara/lamblocal v0.0.4
+	github.com/aws/aws-lambda-go v1.45.0
 	github.com/handlename/ssmwrap/v2 v2.2.0
 	github.com/ken39arg/go-flagx v0.0.0-20220608183922-7cf7c6c0093c
 	github.com/mashiike/go-otlp-helper v0.2.3
@@ -15,7 +15,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-lambda-go v1.45.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.30.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.27.23 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.23 // indirect
