@@ -14,7 +14,6 @@ import (
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
 	tracepb "go.opentelemetry.io/proto/otlp/trace/v1"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type Forwarder struct {
@@ -29,6 +28,7 @@ func New(options *Options) (*Forwarder, error) {
 		options: options,
 	}, nil
 }
+
 func (f *Forwarder) Run(ctx context.Context) {
 	if strings.HasPrefix(os.Getenv("AWS_EXECUTION_ENV"), "AWS_Lambda") || os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
 		lambda.Start(f.Invoke)
@@ -63,6 +63,7 @@ func (f *Forwarder) invokeAsExportTelemetry(ctx context.Context, results []*Pase
 	if err != nil {
 		return nil, fmt.Errorf("create otlp client: %w", err)
 	}
+	slog.InfoContext(ctx, "start otlp client", "endpoint", "http://localhost:4317")
 	if err := client.Start(ctx); err != nil {
 		return nil, fmt.Errorf("start otlp client: %w", err)
 	}
@@ -75,6 +76,7 @@ func (f *Forwarder) invokeAsExportTelemetry(ctx context.Context, results []*Pase
 			continue
 		}
 	}
+	slog.InfoContext(ctx, "stop otlp client")
 	if err := client.Stop(ctx); err != nil {
 		return nil, fmt.Errorf("stop trace client: %w", err)
 	}
@@ -88,6 +90,7 @@ func (f *Forwarder) exportResult(ctx context.Context, client *otlp.Client, resul
 		if err := client.UploadTraces(ctx, recourceSpans); err != nil {
 			return fmt.Errorf("upload traces: %w", err)
 		}
+		slog.DebugContext(ctx, "uploaded traces", "resource_spans", len(recourceSpans))
 		return nil
 	}
 	if result.Metrics != nil && f.options.EnableMetrics() {
@@ -96,6 +99,7 @@ func (f *Forwarder) exportResult(ctx context.Context, client *otlp.Client, resul
 		if err := client.UploadMetrics(ctx, resourceMetrics); err != nil {
 			return fmt.Errorf("upload metrics: %w", err)
 		}
+		slog.DebugContext(ctx, "uploaded metrics", "resource_metrics", len(resourceMetrics))
 		return nil
 	}
 	if result.Logs != nil && f.options.EnableLogs() {
@@ -104,6 +108,7 @@ func (f *Forwarder) exportResult(ctx context.Context, client *otlp.Client, resul
 		if err := client.UploadLogs(ctx, resourceLogs); err != nil {
 			return fmt.Errorf("upload logs: %w", err)
 		}
+		slog.DebugContext(ctx, "uploaded logs", "resource_logs", len(resourceLogs))
 		return nil
 	}
 	return nil
@@ -169,15 +174,15 @@ func Parse(data []byte) ([]*PaseResult, bool) {
 		return results, true
 	}
 	var traces tracepb.TracesData
-	if err := protojson.Unmarshal(data, &traces); err == nil {
+	if err := otlp.UnmarshalJSON(data, &traces); err == nil {
 		return []*PaseResult{{Traces: &traces}}, true
 	}
 	var metrics metricspb.MetricsData
-	if err := protojson.Unmarshal(data, &metrics); err == nil {
+	if err := otlp.UnmarshalJSON(data, &metrics); err == nil {
 		return []*PaseResult{{Metrics: &metrics}}, true
 	}
 	var logs logspb.LogsData
-	if err := protojson.Unmarshal(data, &logs); err == nil {
+	if err := otlp.UnmarshalJSON(data, &logs); err == nil {
 		return []*PaseResult{{Logs: &logs}}, true
 	}
 	return nil, false

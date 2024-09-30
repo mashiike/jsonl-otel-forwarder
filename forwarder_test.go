@@ -5,12 +5,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mashiike/go-otlp-helper/otlp"
 	otlpmux "github.com/mashiike/go-otlp-helper/otlp"
 	"github.com/mashiike/go-otlp-helper/otlp/otlptest"
 	jsonlotelforwarder "github.com/mashiike/jsonl-otel-forwarder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func TestForwarder__Trace(t *testing.T) {
@@ -18,7 +18,7 @@ func TestForwarder__Trace(t *testing.T) {
 	var actual []byte
 	mux.Trace().HandleFunc(func(ctx context.Context, request *otlpmux.TraceRequest) (*otlpmux.TraceResponse, error) {
 		var err error
-		actual, err = protojson.Marshal(request)
+		actual, err = otlp.MarshalJSON(request)
 		assert.NoError(t, err)
 		headers, ok := otlpmux.HeadersFromContext(ctx)
 		assert.True(t, ok)
@@ -42,9 +42,9 @@ func TestForwarder__Trace(t *testing.T) {
 	require.NoError(t, err)
 
 	var data otlpmux.TraceRequest
-	err = protojson.Unmarshal(expected, &data)
+	err = otlp.UnmarshalJSON(expected, &data)
 	require.NoError(t, err)
-	expectedRemarshal, err := protojson.Marshal(&data)
+	expectedRemarshal, err := otlp.MarshalJSON(&data)
 	require.NoError(t, err)
 
 	t.Log("actual:", string(actual))
@@ -57,7 +57,7 @@ func TestForwarder__Metrics(t *testing.T) {
 	var actual []byte
 	mux.Metrics().HandleFunc(func(ctx context.Context, request *otlpmux.MetricsRequest) (*otlpmux.MetricsResponse, error) {
 		var err error
-		actual, err = protojson.Marshal(request)
+		actual, err = otlp.MarshalJSON(request)
 		assert.NoError(t, err)
 		headers, ok := otlpmux.HeadersFromContext(ctx)
 		assert.True(t, ok)
@@ -81,9 +81,9 @@ func TestForwarder__Metrics(t *testing.T) {
 	require.NoError(t, err)
 
 	var data otlpmux.MetricsRequest
-	err = protojson.Unmarshal(expected, &data)
+	err = otlp.UnmarshalJSON(expected, &data)
 	require.NoError(t, err)
-	expectedRemarshal, err := protojson.Marshal(&data)
+	expectedRemarshal, err := otlp.MarshalJSON(&data)
 	require.NoError(t, err)
 
 	t.Log("actual:", string(actual))
@@ -96,7 +96,7 @@ func TestForwarder__Logs(t *testing.T) {
 	var actual []byte
 	mux.Logs().HandleFunc(func(ctx context.Context, request *otlpmux.LogsRequest) (*otlpmux.LogsResponse, error) {
 		var err error
-		actual, err = protojson.Marshal(request)
+		actual, err = otlp.MarshalJSON(request)
 		assert.NoError(t, err)
 		headers, ok := otlpmux.HeadersFromContext(ctx)
 		assert.True(t, ok)
@@ -120,9 +120,9 @@ func TestForwarder__Logs(t *testing.T) {
 	require.NoError(t, err)
 
 	var data otlpmux.LogsRequest
-	err = protojson.Unmarshal(expected, &data)
+	err = otlp.UnmarshalJSON(expected, &data)
 	require.NoError(t, err)
-	expectedRemarshal, err := protojson.Marshal(&data)
+	expectedRemarshal, err := otlp.MarshalJSON(&data)
 	require.NoError(t, err)
 
 	t.Log("actual:", string(actual))
@@ -135,7 +135,7 @@ func TestForworder__SubscriptionFilter__Trace(t *testing.T) {
 	var actual []byte
 	mux.Trace().HandleFunc(func(ctx context.Context, request *otlpmux.TraceRequest) (*otlpmux.TraceResponse, error) {
 		var err error
-		actual, err = protojson.Marshal(request)
+		actual, err = otlp.MarshalJSON(request)
 		assert.NoError(t, err)
 		headers, ok := otlpmux.HeadersFromContext(ctx)
 		assert.True(t, ok)
@@ -165,9 +165,9 @@ func TestForworder__SubscriptionFilter__Trace(t *testing.T) {
 	require.JSONEq(t, `{"success":true}`, string(resp))
 
 	var data otlpmux.TraceRequest
-	err = protojson.Unmarshal(trace, &data)
+	err = otlp.UnmarshalJSON(trace, &data)
 	require.NoError(t, err)
-	expectedRemarshal, err := protojson.Marshal(&data)
+	expectedRemarshal, err := otlp.MarshalJSON(&data)
 	require.NoError(t, err)
 
 	t.Log("actual:", string(actual))
