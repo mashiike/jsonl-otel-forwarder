@@ -2,11 +2,14 @@ package jsonlotelforwarder
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"os"
+	"strings"
 
-	"github.com/fujiwara/lamblocal"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/mashiike/go-otlp-helper/otlp"
 	logspb "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricspb "go.opentelemetry.io/proto/otlp/metrics/v1"
@@ -27,7 +30,22 @@ func New(options *Options) (*Forwarder, error) {
 	}, nil
 }
 func (f *Forwarder) Run(ctx context.Context) {
-	lamblocal.Run(ctx, f.Invoke)
+	if strings.HasPrefix(os.Getenv("AWS_EXECUTION_ENV"), "AWS_Lambda") || os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
+		lambda.Start(f.Invoke)
+		return
+	}
+	dec := json.NewDecoder(os.Stdin)
+	for dec.More() {
+		var payload json.RawMessage
+		if err := dec.Decode(&payload); err != nil {
+			slog.Error("failed to decode payload", "error", err)
+			os.Exit(1)
+		}
+		if _, err := f.Invoke(ctx, payload); err != nil {
+			slog.Error("failed to invoke", "error", err)
+			os.Exit(1)
+		}
+	}
 }
 
 func (f *Forwarder) Invoke(ctx context.Context, payload json.RawMessage) (json.RawMessage, error) {
@@ -66,29 +84,50 @@ func (f *Forwarder) invokeAsExportTelemetry(ctx context.Context, results []*Pase
 func (f *Forwarder) exportResult(ctx context.Context, client *otlp.Client, result *PaseResult) error {
 	if result.Traces != nil && f.options.EnableTraces() {
 		recourceSpans := result.Traces.GetResourceSpans()
+		slog.InfoContext(ctx, "upload traces", "resource_spans", len(recourceSpans), "trace_ids", distinctListTraceIDs(recourceSpans))
 		if err := client.UploadTraces(ctx, recourceSpans); err != nil {
 			return fmt.Errorf("upload traces: %w", err)
 		}
-		slog.InfoContext(ctx, "upload traces", "resource_spans", len(recourceSpans))
 		return nil
 	}
 	if result.Metrics != nil && f.options.EnableMetrics() {
 		resourceMetrics := result.Metrics.GetResourceMetrics()
+		slog.InfoContext(ctx, "upload metrics", "resource_metrics", len(resourceMetrics))
 		if err := client.UploadMetrics(ctx, resourceMetrics); err != nil {
 			return fmt.Errorf("upload metrics: %w", err)
 		}
-		slog.InfoContext(ctx, "upload metrics", "resource_metrics", len(resourceMetrics))
 		return nil
 	}
 	if result.Logs != nil && f.options.EnableLogs() {
 		resourceLogs := result.Logs.GetResourceLogs()
+		slog.InfoContext(ctx, "upload logs", "resource_logs", len(resourceLogs))
 		if err := client.UploadLogs(ctx, resourceLogs); err != nil {
 			return fmt.Errorf("upload logs: %w", err)
 		}
-		slog.InfoContext(ctx, "upload logs", "resource_logs", len(resourceLogs))
 		return nil
 	}
 	return nil
+}
+
+func distinctListTraceIDs(resourceSpans []*tracepb.ResourceSpans) []string {
+	traceIDs := make(map[string]struct{})
+	for _, resourceSpan := range resourceSpans {
+		for _, scopeSpan := range resourceSpan.GetScopeSpans() {
+			for _, span := range scopeSpan.GetSpans() {
+				traceID := span.GetTraceId()
+				traceIDStr := base64.StdEncoding.EncodeToString(traceID)
+				if len(traceID) != 16 {
+					slog.Warn("invalid trace id length", "trace_id", traceIDStr, "length", len(traceID))
+				}
+				traceIDs[traceIDStr] = struct{}{}
+			}
+		}
+	}
+	keys := make([]string, 0, len(traceIDs))
+	for key := range traceIDs {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 type PaseResult struct {
