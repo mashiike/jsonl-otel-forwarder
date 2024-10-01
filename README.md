@@ -90,7 +90,7 @@ Usage: jsonl-otel-forwarder [options]
 Options:
 
   -batch
-        batch forward to export endpoint ($FORWARDER_TO_BATCH)
+        batch forward to export endpoint ($FORWARDER_BATCH)
   -log-level string
         log level ($FORWARDER_LOG_LEVEL) (default "info")
   -otlp-endpoint string
