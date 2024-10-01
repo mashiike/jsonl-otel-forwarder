@@ -62,6 +62,8 @@ github.com/mashiike/go-otlp-helper v0.2.4 h1:x291IWy+JnPuLPfYN+zT4Pf2sFTA8i8CNvq
 github.com/mashiike/go-otlp-helper v0.2.4/go.mod h1:lbrdlIlE2pAVCzNVDyrTpGQf2JuyLvBXYGh8Jiij85U=
 github.com/mashiike/go-otlp-helper v0.2.5 h1:GmZq1BUbm9lvAkFxlnim0BsLQzshdfELcSdPruI8+68=
 github.com/mashiike/go-otlp-helper v0.2.5/go.mod h1:lbrdlIlE2pAVCzNVDyrTpGQf2JuyLvBXYGh8Jiij85U=
+github.com/mashiike/go-otlp-helper v0.2.6 h1:5s9FYi69Io6tXpG5fTJw+01mx5XGrLncvKYgsEred98=
+github.com/mashiike/go-otlp-helper v0.2.6/go.mod h1:lbrdlIlE2pAVCzNVDyrTpGQf2JuyLvBXYGh8Jiij85U=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
