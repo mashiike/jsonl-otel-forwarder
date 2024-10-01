@@ -1,5 +1,7 @@
 # Changelog
 
+## [v0.4.1](https://github.com/mashiike/jsonl-otel-forwarder/compare/v0.4.0...v0.4.1) - 2024-10-01
+
 ## [v0.4.0](https://github.com/mashiike/jsonl-otel-forwarder/compare/v0.3.0...v0.4.0) - 2024-10-01
 - Batch Forward by @mashiike in https://github.com/mashiike/jsonl-otel-forwarder/pull/11
 - Bump github.com/aws/aws-lambda-go from 1.45.0 to 1.47.0 by @dependabot in https://github.com/mashiike/jsonl-otel-forwarder/pull/10
