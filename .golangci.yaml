@@ -6,10 +6,9 @@ issues:
     - path: _test\.go
       linters:
         - gocyclo
+        - testifylint
 
 linters:
-  disable:
-    - testify
   disable-all: true
   enable:
     - gocyclo
@@ -23,4 +22,8 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   errcheck:
-    ignore: fmt:.*,io/ioutil:^Read,^Close|^Write|^Shutdown
+    exclude-functions:
+      - fmt.Fprintln
+      - io.Copy
+      - (*net/http.ResponseWriter).Write
+      - (io.ReadCloser).Close

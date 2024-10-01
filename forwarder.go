@@ -57,6 +57,12 @@ func (f *Forwarder) Invoke(ctx context.Context, payload json.RawMessage) (json.R
 }
 
 func (f *Forwarder) invokeAsExportTelemetry(ctx context.Context, results []*PaseResult) (json.RawMessage, error) {
+	if f.options.Batch {
+		slog.InfoContext(ctx, "to batch parse results", "results", len(results))
+		results = []*PaseResult{
+			ToBatchParseResult(results...),
+		}
+	}
 	opts := f.options.clientOptions
 	opts = append(opts, otlp.WithLogger(slog.Default()))
 	client, err := otlp.NewClient("http://localhost:4317", opts...)

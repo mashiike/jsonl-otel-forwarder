@@ -3,6 +3,7 @@ package jsonlotelforwarder
 import (
 	"flag"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/mashiike/go-otlp-helper/otlp"
@@ -24,6 +25,7 @@ func DefaultOptions() *Options {
 
 type Options struct {
 	Signals       string
+	Batch         bool
 	clientOptions []otlp.ClientOption
 }
 
@@ -33,6 +35,15 @@ func (o *Options) SetFlags(fs *flag.FlagSet) {
 		otlp.ClientOptionsWithFlagSet(fs, "", "FORWARDER_", "OTEL_EXPORTER_"),
 	)
 	fs.StringVar(&o.Signals, "signals", o.Signals, "comma separated list of signals to forward [traces,metrics,logs] ($FORWARDER_SIGNALS)")
+	fs.BoolVar(&o.Batch, "batch", toBool(os.Getenv("FOWARDER_BATCH")), "batch forward to export endpoint ($FORWARDER_BATCH)")
+}
+
+func toBool(s string) bool {
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+		return false
+	}
+	return b
 }
 
 func (o *Options) SignalsList() []string {
