@@ -9,7 +9,7 @@ require (
 	github.com/handlename/ssmwrap/v2 v2.2.0
 	github.com/ken39arg/go-flagx v0.0.0-20220608183922-7cf7c6c0093c
 	github.com/mashiike/go-otlp-helper v0.2.6
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/proto/otlp v1.3.1
 )
 
